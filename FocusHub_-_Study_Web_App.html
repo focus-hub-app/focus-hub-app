@@ -1,0 +1,1431 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FocusHub – Study Smarter</title>
+<meta name="description" content="FocusHub is a free study tool for students with Pomodoro timer, quizzes, flashcards, study groups, and more."/>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #21253a;
+    --border: #2e3350;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --accent3: #43d9ad;
+    --text: #e8eaf6;
+    --muted: #8b90b0;
+    --success: #43d9ad;
+    --warning: #ffd166;
+    --danger: #ff6b6b;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+  a{color:var(--accent);text-decoration:none}
+  button{cursor:pointer;font-family:inherit}
+
+  /* ── AD SLOTS ── */
+  .ad-banner{background:linear-gradient(90deg,#1a1d27,#21253a);border:1px solid var(--border);border-radius:8px;padding:10px 20px;text-align:center;font-size:12px;color:var(--muted);letter-spacing:.5px;margin:8px auto;max-width:720px;width:100%;position:relative}
+  .ad-banner::before{content:"ADVERTISEMENT";font-size:9px;position:absolute;top:3px;left:10px;opacity:.5}
+  .ad-banner ins,.ad-slot{display:block;min-height:60px;background:rgba(108,99,255,.05);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px}
+  .premium-hidden .ad-banner{display:none!important}
+
+  /* ── TOP NAV ── */
+  .top-ad{padding:6px 16px;background:var(--surface)}
+  nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+  .nav-logo{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-links{display:flex;gap:4px}
+  .nav-links button{background:none;border:none;color:var(--muted);padding:6px 10px;border-radius:8px;font-size:13px;transition:.2s}
+  .nav-links button:hover,.nav-links button.active{background:rgba(108,99,255,.15);color:var(--accent)}
+  .nav-right{display:flex;align-items:center;gap:8px}
+  .streak-badge{background:linear-gradient(135deg,#ff6b35,#ff6584);color:#fff;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
+  .premium-btn{background:linear-gradient(135deg,#ffd166,#ff6584);color:#000;border:none;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;transition:.2s}
+  .premium-btn:hover{opacity:.85;transform:scale(1.04)}
+
+  /* ── PAGES ── */
+  .page{display:none;padding:20px 16px;max-width:760px;margin:0 auto;animation:fadeIn .3s ease}
+  .page.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ── HOME ── */
+  .hero{text-align:center;padding:32px 0 24px}
+  .hero h1{font-size:clamp(26px,6vw,42px);font-weight:800;line-height:1.2}
+  .hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{color:var(--muted);margin-top:10px;font-size:15px}
+  .stats-row{display:flex;gap:12px;justify-content:center;margin:20px 0;flex-wrap:wrap}
+  .stat-chip{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:8px 18px;font-size:13px;font-weight:600}
+  .stat-chip span{color:var(--accent)}
+  .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-top:20px}
+  .feature-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 16px;text-align:center;cursor:pointer;transition:.25s;position:relative;overflow:hidden}
+  .feature-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent),var(--accent2));opacity:0;transition:.25s}
+  .feature-card:hover::before{opacity:.08}
+  .feature-card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:var(--shadow)}
+  .feature-card .icon{font-size:36px;margin-bottom:10px}
+  .feature-card h3{font-size:14px;font-weight:700}
+  .feature-card p{font-size:11px;color:var(--muted);margin-top:4px}
+  .leaderboard-preview{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:20px}
+  .leaderboard-preview h2{font-size:16px;font-weight:700;margin-bottom:14px}
+  .lb-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)}
+  .lb-item:last-child{border-bottom:none}
+  .lb-rank{font-size:18px;width:28px;text-align:center}
+  .lb-info{flex:1}
+  .lb-name{font-size:14px;font-weight:600}
+  .lb-detail{font-size:11px;color:var(--muted)}
+  .lb-score{font-size:13px;color:var(--accent);font-weight:700}
+  .active-dot{width:8px;height:8px;background:var(--success);border-radius:50%;display:inline-block;margin-right:5px;animation:pulse 1.5s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* ── TIMER ── */
+  .timer-wrap{text-align:center;padding:20px 0}
+  .timer-circle{width:220px;height:220px;border-radius:50%;border:6px solid var(--border);margin:0 auto 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;background:var(--card)}
+  .timer-circle svg{position:absolute;top:-6px;left:-6px;transform:rotate(-90deg)}
+  .timer-circle svg circle{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .5s linear}
+  .timer-display{font-size:52px;font-weight:800;letter-spacing:2px;font-variant-numeric:tabular-nums;position:relative;z-index:1}
+  .timer-label{font-size:12px;color:var(--muted);z-index:1}
+  .btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+  .btn{border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:700;transition:.2s;display:inline-flex;align-items:center;gap:8px}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#5a52e0;transform:scale(1.03)}
+  .btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border)}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-danger{background:rgba(255,107,107,.15);color:var(--danger);border:1px solid rgba(255,107,107,.3)}
+  .btn-success{background:var(--success);color:#000}
+  .motivation-box{background:linear-gradient(135deg,rgba(108,99,255,.12),rgba(67,217,173,.08));border:1px solid rgba(108,99,255,.3);border-radius:var(--radius);padding:16px;margin:16px 0;text-align:center;font-size:14px;font-style:italic;color:var(--text)}
+  .session-info{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+  .info-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 16px;font-size:12px;text-align:center}
+  .info-chip strong{display:block;font-size:18px;color:var(--accent)}
+
+  /* ── QUIZ ── */
+  .quiz-setup{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+  .quiz-setup h2{font-size:18px;font-weight:700;margin-bottom:12px}
+  textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:14px;font-size:14px;resize:vertical;min-height:140px;font-family:inherit}
+  textarea:focus{outline:none;border-color:var(--accent)}
+  .quiz-question-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:16px}
+  .q-progress{display:flex;gap:6px;margin-bottom:16px}
+  .q-dot{flex:1;height:4px;background:var(--border);border-radius:2px}
+  .q-dot.done{background:var(--accent)}
+  .q-dot.current{background:var(--accent2)}
+  .question-text{font-size:16px;font-weight:600;margin-bottom:20px;line-height:1.5}
+  .options-grid{display:grid;gap:10px}
+  .option-btn{background:var(--surface);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:14px 18px;text-align:left;font-size:14px;transition:.2s;width:100%}
+  .option-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(108,99,255,.08)}
+  .option-btn.correct{border-color:var(--success);background:rgba(67,217,173,.12);color:var(--success)}
+  .option-btn.wrong{border-color:var(--danger);background:rgba(255,107,107,.1);color:var(--danger)}
+  .feedback-msg{text-align:center;padding:12px;border-radius:10px;font-weight:600;font-size:14px;margin-top:12px}
+  .feedback-msg.correct{background:rgba(67,217,173,.12);color:var(--success)}
+  .feedback-msg.wrong{background:rgba(255,107,107,.1);color:var(--danger)}
+  .score-card{text-align:center;padding:32px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+  .score-big{font-size:72px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .progress-bar-wrap{background:var(--border);border-radius:10px;height:8px;margin:10px 0;overflow:hidden}
+  .progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:10px;transition:.4s}
+
+  /* ── FLASHCARDS ── */
+  .flashcard-area{perspective:1000px}
+  .flashcard{width:100%;max-width:400px;height:220px;margin:0 auto 20px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .5s}
+  .flashcard.flipped{transform:rotateY(180deg)}
+  .fc-face{position:absolute;inset:0;border-radius:var(--radius);border:2px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;backface-visibility:hidden;text-align:center}
+  .fc-front{background:linear-gradient(135deg,var(--card),rgba(108,99,255,.08))}
+  .fc-back{background:linear-gradient(135deg,var(--card),rgba(67,217,173,.08));transform:rotateY(180deg)}
+  .fc-face small{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+  .fc-face p{font-size:16px;font-weight:600;line-height:1.5}
+  .fc-hint{text-align:center;font-size:12px;color:var(--muted);margin-bottom:10px}
+  .fc-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:20px}
+  .fc-counter{font-size:14px;color:var(--muted)}
+  .fc-list{display:grid;gap:10px;margin-top:16px}
+  .fc-list-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+  .fc-list-item .fc-q{flex:1;font-size:13px;font-weight:600}
+  .fc-list-item .fc-a{font-size:12px;color:var(--muted);flex:1}
+  .input-row{display:flex;gap:10px;margin-bottom:10px}
+  input[type=text],input[type=email]{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:14px;font-family:inherit}
+  input:focus{outline:none;border-color:var(--accent)}
+  .tab-bar{display:flex;gap:8px;margin-bottom:20px;background:var(--surface);padding:4px;border-radius:12px}
+  .tab-btn{flex:1;background:none;border:none;color:var(--muted);padding:8px;border-radius:9px;font-size:13px;font-weight:600;transition:.2s}
+  .tab-btn.active{background:var(--card);color:var(--text)}
+
+  /* ── STUDY GROUPS ── */
+  .room-grid{display:grid;gap:12px}
+  .room-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:.2s}
+  .room-card:hover{border-color:var(--accent)}
+  .room-icon{font-size:28px;width:48px;height:48px;background:rgba(108,99,255,.12);border-radius:12px;display:flex;align-items:center;justify-content:center}
+  .room-info{flex:1}
+  .room-name{font-size:15px;font-weight:700}
+  .room-meta{font-size:12px;color:var(--muted);margin-top:3px}
+  .room-users{font-size:12px;color:var(--success)}
+  .room-badge{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:700}
+  .badge-public{background:rgba(67,217,173,.15);color:var(--success)}
+  .badge-private{background:rgba(108,99,255,.15);color:var(--accent)}
+  .user-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .user-chip{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;display:flex;align-items:center;gap:6px}
+
+  /* ── MODAL ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:400px;animation:fadeIn .25s ease}
+  .modal h2{font-size:18px;font-weight:700;margin-bottom:16px}
+  .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;margin-top:12px}
+
+  /* ── ABOUT / CONTACT / PRIVACY ── */
+  .content-page{max-width:680px;margin:0 auto}
+  .content-page h1{font-size:28px;font-weight:800;margin-bottom:8px}
+  .content-page h2{font-size:18px;font-weight:700;margin:24px 0 8px;color:var(--accent)}
+  .content-page p{color:var(--muted);line-height:1.7;margin-bottom:10px;font-size:14px}
+  .content-page ul{color:var(--muted);font-size:14px;line-height:1.9;padding-left:20px}
+  .contact-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:20px}
+  .contact-form .btn{margin-top:16px;width:100%;justify-content:center}
+
+  /* ── TOAST ── */
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:10px 20px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ── BOTTOM NAV (mobile) ── */
+  .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 0 env(safe-area-inset-bottom,8px);z-index:100}
+  .bottom-nav-inner{display:flex;justify-content:space-around}
+  .bn-btn{background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;border-radius:10px;font-size:9px;font-weight:600;min-width:48px;transition:.2s}
+  .bn-btn .bn-icon{font-size:20px}
+  .bn-btn.active{color:var(--accent)}
+  @media(max-width:640px){
+    .bottom-nav{display:block}
+    body{padding-bottom:72px}
+    nav .nav-links{display:none}
+    .feature-grid{grid-template-columns:repeat(2,1fr)}
+    .timer-circle{width:190px;height:190px}
+    .timer-display{font-size:44px}
+  }
+
+  /* ── PREMIUM LOCK ── */
+  .lock-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;background:rgba(15,17,23,.85);border-radius:var(--radius);border:1px dashed var(--border);gap:12px}
+  .lock-overlay .lock-icon{font-size:40px}
+  .lock-overlay p{font-size:14px;color:var(--muted)}
+
+  /* ── LOADING SPINNER ── */
+  .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:20px auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ── COUNTDOWN (reward) ── */
+  .reward-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+  .reward-overlay.show{display:flex}
+  .reward-num{font-size:80px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:pop .5s ease}
+  @keyframes pop{from{transform:scale(1.5)}to{transform:scale(1)}}
+  .reward-text{font-size:18px;color:var(--muted)}
+
+  /* ── misc ── */
+  .divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+  .section-title{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .badge-new{background:var(--accent2);color:#fff;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:800}
+  .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+  .empty-state .icon{font-size:48px;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<!-- TOP AD BANNER (all pages) -->
+<div class="top-ad" id="topAdWrap">
+  <div class="ad-banner">
+    <div style="min-height:50px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)">
+      📢 Google AdSense Banner – 728×90 (Replace with your AdSense code)
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">⚡ FocusHub</div>
+  <div class="nav-links" id="navLinks">
+    <button onclick="showPage('home')" class="active" id="nav-home">Home</button>
+    <button onclick="showPage('timer')" id="nav-timer">Timer</button>
+    <button onclick="showPage('stopwatch')" id="nav-stopwatch">Stopwatch</button>
+    <button onclick="showPage('quiz')" id="nav-quiz">Quiz</button>
+    <button onclick="showPage('flashcards')" id="nav-flashcards">Flashcards</button>
+    <button onclick="showPage('groups')" id="nav-groups">Groups</button>
+  </div>
+  <div class="nav-right">
+    <div class="streak-badge" id="streakBadge">🔥 1</div>
+    <button class="premium-btn" onclick="openPremiumModal()">⭐ Premium</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════
+     HOME PAGE
+══════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <h1>Study Smarter with <span>FocusHub</span></h1>
+    <p>Your all-in-one study companion — timers, quizzes, flashcards & more.</p>
+    <div class="stats-row" id="statsRow">
+      <div class="stat-chip">🕐 Today: <span id="todayTime">0m</span></div>
+      <div class="stat-chip">🔥 Streak: <span id="homeStreak">1 day</span></div>
+      <div class="stat-chip">🏆 Quizzes: <span id="totalQuizzes">0</span></div>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card" onclick="showPage('timer')">
+      <div class="icon">🍅</div>
+      <h3>Study Timer</h3>
+      <p>25-min Pomodoro</p>
+    </div>
+    <div class="feature-card" onclick="showPage('stopwatch')">
+      <div class="icon">⏱️</div>
+      <h3>Stopwatch</h3>
+      <p>Track sessions</p>
+    </div>
+    <div class="feature-card" onclick="showPage('quiz')">
+      <div class="icon">🧠</div>
+      <h3>Take Quiz</h3>
+      <p>Test your knowledge</p>
+    </div>
+    <div class="feature-card" onclick="showPage('flashcards')">
+      <div class="icon">🃏</div>
+      <h3>Flashcards</h3>
+      <p>Create & review</p>
+    </div>
+    <div class="feature-card" onclick="showPage('groups')">
+      <div class="icon">👥</div>
+      <h3>Study Groups</h3>
+      <p>Learn together</p>
+    </div>
+    <div class="feature-card" onclick="showPage('leaderboard')">
+      <div class="icon">🏅</div>
+      <h3>Leaderboard</h3>
+      <p>Top studiers</p>
+    </div>
+  </div>
+
+  <!-- Leaderboard preview -->
+  <div class="leaderboard-preview">
+    <h2>🏆 Top Studiers Today</h2>
+    <div id="homeLB"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button onclick="showPage('about')" class="btn btn-secondary" style="font-size:12px;padding:8px 16px">About Us</button>
+    <button onclick="showPage('contact')" class="btn btn-secondary" style="font-size:12px;padding:8px 16px">Contact</button>
+    <button onclick="showPage('privacy')" class="btn btn-secondary" style="font-size:12px;padding:8px 16px">Privacy Policy</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     STUDY TIMER PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-timer">
+  <div class="section-title">🍅 Pomodoro Timer</div>
+  <div class="timer-wrap">
+    <div class="timer-circle" id="timerCircle">
+      <svg width="232" height="232" viewBox="0 0 232 232">
+        <circle cx="116" cy="116" r="107" stroke-dasharray="672" stroke-dashoffset="0" id="timerArc"/>
+      </svg>
+      <div class="timer-display" id="timerDisplay">25:00</div>
+      <div class="timer-label" id="timerMode">FOCUS</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="toggleTimer()" id="timerBtn">▶ Start</button>
+      <button class="btn btn-secondary" onclick="resetTimer()">↺ Reset</button>
+      <button class="btn btn-secondary" onclick="skipTimer()">⏭ Skip</button>
+    </div>
+    <div class="session-info">
+      <div class="info-chip"><strong id="pomodoroCount">0</strong>Pomodoros</div>
+      <div class="info-chip"><strong id="timerStreak">0</strong>Day Streak</div>
+      <div class="info-chip"><strong id="timerTodayTime">0m</strong>Today</div>
+    </div>
+    <div class="motivation-box" id="motivationBox">💪 Let's get focused! You've got this.</div>
+  </div>
+  <div class="ad-banner" id="timerAd">
+    <div style="min-height:60px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)">📢 AdSense – Small Ad Below Timer</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     STOPWATCH PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-stopwatch">
+  <div class="section-title">⏱️ Stopwatch</div>
+  <div class="timer-wrap">
+    <div class="timer-circle">
+      <div class="timer-display" id="swDisplay">00:00:00</div>
+      <div class="timer-label">ELAPSED</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="toggleSW()" id="swBtn">▶ Start</button>
+      <button class="btn btn-secondary" onclick="lapSW()">🏁 Lap</button>
+      <button class="btn btn-secondary" onclick="resetSW()">↺ Reset</button>
+    </div>
+    <div class="session-info">
+      <div class="info-chip"><strong id="swTodayTime">0m</strong>Today Total</div>
+      <div class="info-chip"><strong id="swLaps">0</strong>Laps</div>
+    </div>
+    <div id="lapList" style="max-height:180px;overflow-y:auto;margin-top:12px;display:grid;gap:6px"></div>
+  </div>
+  <div class="ad-banner" id="swAd">
+    <div style="min-height:60px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)">📢 AdSense – Small Ad Below Stopwatch</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-quiz">
+  <div class="section-title">🧠 Quiz Generator <span class="badge-new">AI</span></div>
+
+  <!-- Setup -->
+  <div id="quizSetup">
+    <div class="quiz-setup">
+      <h2>Paste Your Notes</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">We'll automatically generate multiple-choice questions from your notes.</p>
+      <textarea id="quizNotes" placeholder="Paste your study notes here... (e.g., The mitochondria is the powerhouse of the cell. Photosynthesis converts sunlight into glucose...)"></textarea>
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="generateQuiz()" style="flex:1">🤖 Generate Quiz</button>
+        <button class="btn btn-secondary" onclick="loadSampleNotes()" style="flex:1">📝 Load Sample</button>
+      </div>
+      <div id="premiumQuizLock" style="margin-top:12px;display:none">
+        <div class="lock-overlay">
+          <div class="lock-icon">🔒</div>
+          <p>AI-generated quizzes are a <strong>Premium</strong> feature</p>
+          <button class="premium-btn" onclick="openPremiumModal()">⭐ Unlock Premium</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Quiz -->
+  <div id="quizActive" style="display:none">
+    <div class="quiz-question-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px;color:var(--muted)" id="qCounter">Question 1 / 5</span>
+        <span style="font-size:13px;color:var(--accent)" id="qScore">Score: 0</span>
+      </div>
+      <div class="q-progress" id="qProgress"></div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div id="feedbackMsg" style="display:none" class="feedback-msg"></div>
+      <div style="margin-top:16px;text-align:right" id="nextBtnWrap" style="display:none">
+        <button class="btn btn-primary" onclick="nextQuestion()" id="nextQBtn" style="display:none">Next Question →</button>
+      </div>
+    </div>
+    <div class="ad-banner" id="quizMidAd" style="display:none;margin-top:12px">
+      <div style="min-height:60px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)">📢 AdSense – Between Questions Ad</div>
+    </div>
+  </div>
+
+  <!-- Score Card -->
+  <div id="quizScore" style="display:none">
+    <div class="score-card">
+      <div style="font-size:16px;color:var(--muted);margin-bottom:8px">Quiz Complete! 🎉</div>
+      <div class="score-big" id="scoreBig">0%</div>
+      <div style="font-size:14px;color:var(--muted);margin:12px 0" id="scoreDetail"></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="scoreBar"></div></div>
+      <div class="ad-banner" style="margin:16px 0">
+        <div style="min-height:80px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)">📢 AdSense – Post-Quiz Ad</div>
+      </div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn btn-primary" onclick="retakeQuiz()">🔄 Retake</button>
+        <button class="btn btn-secondary" onclick="newQuiz()">📝 New Quiz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     FLASHCARDS PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-flashcards">
+  <div class="section-title">🃏 Flashcards <span class="badge-new">NEW</span></div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="fcTab('study')" id="fcTab-study">📖 Study</button>
+    <button class="tab-btn" onclick="fcTab('create')" id="fcTab-create">✏️ Create</button>
+    <button class="tab-btn" onclick="fcTab('generate')" id="fcTab-generate">🤖 AI Generate</button>
+  </div>
+
+  <!-- Study Tab -->
+  <div id="fcStudy">
+    <div id="noCards" class="empty-state">
+      <div class="icon">🃏</div>
+      <p>No flashcards yet.<br>Create some or generate from notes!</p>
+    </div>
+    <div id="cardViewer" style="display:none">
+      <div class="fc-hint">👆 Tap card to flip</div>
+      <div class="flashcard-area">
+        <div class="flashcard" id="mainFlashcard" onclick="flipCard()">
+          <div class="fc-face fc-front">
+            <small>Question</small>
+            <p id="fcFront"></p>
+          </div>
+          <div class="fc-face fc-back">
+            <small>Answer</small>
+            <p id="fcBack"></p>
+          </div>
+        </div>
+      </div>
+      <div class="fc-nav">
+        <button class="btn btn-secondary" onclick="prevCard()">◀ Prev</button>
+        <span class="fc-counter" id="fcCounter">1 / 1</span>
+        <button class="btn btn-secondary" onclick="nextCard()">Next ▶</button>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-secondary" style="font-size:12px" onclick="shuffleCards()">🔀 Shuffle</button>
+        <button class="btn btn-secondary" style="font-size:12px;color:var(--danger)" onclick="deleteCard()">🗑 Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Tab -->
+  <div id="fcCreate" style="display:none">
+    <div class="quiz-setup">
+      <h2>Create Flashcard</h2>
+      <label>Question / Term</label>
+      <input type="text" id="fcQ" placeholder="e.g. What is photosynthesis?"/>
+      <label>Answer / Definition</label>
+      <input type="text" id="fcA" placeholder="e.g. Process by which plants convert sunlight..."/>
+      <div style="margin-top:14px;display:flex;gap:10px">
+        <button class="btn btn-primary" onclick="addCard()" style="flex:1">➕ Add Card</button>
+        <button class="btn btn-secondary" onclick="fcTab('study')" style="flex:1">📖 View All</button>
+      </div>
+    </div>
+    <div class="fc-list" id="fcList"></div>
+  </div>
+
+  <!-- AI Generate Tab -->
+  <div id="fcGenerate" style="display:none">
+    <div class="quiz-setup">
+      <h2>🤖 AI Generate Flashcards</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Paste your notes and we'll create flashcards automatically.</p>
+      <textarea id="fcNotes" placeholder="Paste notes here..."></textarea>
+      <button class="btn btn-primary" style="width:100%;margin-top:14px;justify-content:center" onclick="generateFlashcards()">🤖 Generate Flashcards</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     STUDY GROUPS PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-groups">
+  <div class="section-title">👥 Study Groups</div>
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="openCreateRoom()" style="flex:1">➕ Create Room</button>
+    <button class="btn btn-secondary" onclick="openJoinRoom()" style="flex:1">🔗 Join Room</button>
+  </div>
+  <div class="section-title" style="font-size:14px">🟢 Active Rooms</div>
+  <div class="room-grid" id="roomGrid"></div>
+  <hr class="divider"/>
+  <div class="section-title" style="font-size:14px">👤 Currently Studying</div>
+  <div class="user-list" id="activeUsers"></div>
+</div>
+
+<!-- ══════════════════════════════════
+     LEADERBOARD PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-leaderboard">
+  <div class="section-title">🏆 Leaderboard</div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="lbTab('streak')" id="lbTab-streak">🔥 Streaks</button>
+    <button class="tab-btn" onclick="lbTab('time')" id="lbTab-time">⏱ Study Time</button>
+    <button class="tab-btn" onclick="lbTab('live')" id="lbTab-live">🟢 Live Now</button>
+  </div>
+  <div id="lbContent"></div>
+</div>
+
+<!-- ══════════════════════════════════
+     ABOUT US PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-about">
+  <div class="content-page">
+    <h1>About FocusHub 🎓</h1>
+    <p style="color:var(--muted);font-size:15px">Empowering students to study smarter, not harder.</p>
+    <hr class="divider"/>
+    <h2>Our Mission</h2>
+    <p>FocusHub was built with one goal in mind: to help students stay focused, organized, and motivated. Whether you're preparing for exams, learning a new subject, or just trying to build better study habits — FocusHub has the tools you need.</p>
+    <h2>What We Offer</h2>
+    <ul>
+      <li>🍅 Pomodoro Timer with streak tracking</li>
+      <li>🧠 AI-powered quiz generator from your notes</li>
+      <li>🃏 Smart flashcard system</li>
+      <li>👥 Collaborative study rooms</li>
+      <li>🏆 Leaderboards to keep you motivated</li>
+      <li>📊 Daily study stats and streaks</li>
+    </ul>
+    <h2>Our Team</h2>
+    <p>FocusHub is built by a passionate team of students and educators who believe that the right tools can make all the difference in academic success.</p>
+    <h2>Free for Everyone</h2>
+    <p>Our core features are completely free. We offer a Premium plan for users who want advanced AI features, ad-free experience, and private study groups.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     CONTACT PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-contact">
+  <div class="content-page">
+    <h1>Contact Us 📬</h1>
+    <p style="color:var(--muted)">Have a question or feedback? We'd love to hear from you!</p>
+    <div class="contact-form">
+      <label>Your Name</label>
+      <input type="text" id="contactName" placeholder="John Doe"/>
+      <label>Email Address</label>
+      <input type="email" id="contactEmail" placeholder="john@example.com"/>
+      <label>Subject</label>
+      <input type="text" id="contactSubject" placeholder="e.g. Feature Request"/>
+      <label>Message</label>
+      <textarea id="contactMsg" placeholder="Write your message here..." style="min-height:100px"></textarea>
+      <button class="btn btn-primary contact-form .btn" onclick="submitContact()">📤 Send Message</button>
+    </div>
+    <hr class="divider"/>
+    <h2>Other Ways to Reach Us</h2>
+    <p>📧 Email: support@focushub.app</p>
+    <p>🐦 Twitter: @FocusHubApp</p>
+    <p>📸 Instagram: @FocusHubStudy</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PRIVACY POLICY PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-privacy">
+  <div class="content-page">
+    <h1>Privacy Policy 🔒</h1>
+    <p style="color:var(--muted);font-size:13px">Last updated: January 2025</p>
+    <hr class="divider"/>
+    <h2>Information We Collect</h2>
+    <p>FocusHub collects minimal data to provide you with the best study experience. We may collect:</p>
+    <ul>
+      <li>Usage data (time studied, sessions, quiz scores) stored locally in your browser</li>
+      <li>Contact information if you reach out to us</li>
+      <li>Anonymous analytics to improve our service</li>
+    </ul>
+    <h2>How We Use Your Data</h2>
+    <p>Data collected is used solely to improve your experience on FocusHub. We do not sell your personal data to third parties.</p>
+    <h2>Google AdSense</h2>
+    <p>We use Google AdSense to display advertisements. Google may use cookies to serve ads based on your visits to our site. You can opt out of personalized advertising by visiting Google's Ad Settings.</p>
+    <h2>Cookies</h2>
+    <p>We use browser localStorage to save your study progress, streaks, and preferences. No cookies are used for tracking without consent.</p>
+    <h2>Third-Party Services</h2>
+    <p>FocusHub may use third-party services including Google AdSense and analytics tools. These services have their own privacy policies.</p>
+    <h2>Children's Privacy</h2>
+    <p>FocusHub is safe for users of all ages. We do not knowingly collect personal information from children under 13.</p>
+    <h2>Contact Us</h2>
+    <p>For any privacy-related questions, contact us at: privacy@focushub.app</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     BOTTOM NAV (mobile)
+══════════════════════════════════ -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bn-btn active" onclick="showPage('home')" id="bn-home"><span class="bn-icon">🏠</span>Home</button>
+    <button class="bn-btn" onclick="showPage('timer')" id="bn-timer"><span class="bn-icon">🍅</span>Timer</button>
+    <button class="bn-btn" onclick="showPage('quiz')" id="bn-quiz"><span class="bn-icon">🧠</span>Quiz</button>
+    <button class="bn-btn" onclick="showPage('flashcards')" id="bn-flashcards"><span class="bn-icon">🃏</span>Cards</button>
+    <button class="bn-btn" onclick="showPage('groups')" id="bn-groups"><span class="bn-icon">👥</span>Groups</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════
+     MODALS
+══════════════════════════════════ -->
+
+<!-- Premium Modal -->
+<div class="modal-overlay" id="premiumModal">
+  <div class="modal">
+    <h2>⭐ Unlock Premium</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Get access to AI quizzes, AI flashcards, ad-free experience & private study groups.</p>
+    <div style="background:var(--card);border-radius:12px;padding:16px;margin-bottom:16px">
+      <div style="font-size:22px;font-weight:800;margin-bottom:4px">₹99 / month</div>
+      <div style="font-size:12px;color:var(--muted)">Pay via UPI and enter your activation code below</div>
+      <div style="margin-top:12px;background:rgba(108,99,255,.1);border-radius:10px;padding:12px;font-size:13px">
+        <strong>UPI ID:</strong> focushub@upi<br/>
+        <strong>Amount:</strong> ₹99<br/>
+        <strong>Note:</strong> Your email/username
+      </div>
+    </div>
+    <label>Enter Activation Code</label>
+    <input type="text" id="premiumCode" placeholder="e.g. FOCUS-XXXX-XXXX"/>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closePremiumModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="activatePremium()">✅ Activate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Room Modal -->
+<div class="modal-overlay" id="createRoomModal">
+  <div class="modal">
+    <h2>➕ Create Study Room</h2>
+    <label>Room Name</label>
+    <input type="text" id="roomName" placeholder="e.g. Biology Study Group"/>
+    <label>Your Name</label>
+    <input type="text" id="roomUser" placeholder="e.g. Alex"/>
+    <label>Room Type</label>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <label style="display:flex;align-items:center;gap:6px;color:var(--text);font-size:14px;cursor:pointer"><input type="radio" name="rtype" value="public" checked/> 🌐 Public</label>
+      <label style="display:flex;align-items:center;gap:6px;color:var(--text);font-size:14px;cursor:pointer"><input type="radio" name="rtype" value="private"/> 🔒 Private <span style="font-size:10px;color:var(--accent)">(Premium)</span></label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('createRoomModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="createRoom()">Create Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- Join Room Modal -->
+<div class="modal-overlay" id="joinRoomModal">
+  <div class="modal">
+    <h2>🔗 Join Study Room</h2>
+    <label>Your Name</label>
+    <input type="text" id="joinUser" placeholder="e.g. Sam"/>
+    <label>Room Code (optional)</label>
+    <input type="text" id="joinCode" placeholder="e.g. #room-123"/>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('joinRoomModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="joinRoom()">Join Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Reward Countdown Overlay -->
+<div class="reward-overlay" id="rewardOverlay">
+  <div class="reward-num" id="rewardNum">3</div>
+  <div class="reward-text" id="rewardText">Loading next question...</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE & STORAGE
+// ══════════════════════════════════════════════
+const S = {
+  get: k => { try { return JSON.parse(localStorage.getItem('fh_'+k)); } catch(e){return null;} },
+  set: (k,v) => localStorage.setItem('fh_'+k, JSON.stringify(v)),
+};
+
+let isPremium = S.get('premium') || false;
+let streak = S.get('streak') || 1;
+let totalTodayMs = S.get('today_ms') || 0;
+let totalQuizzes = S.get('total_quizzes') || 0;
+let flashcards = S.get('flashcards') || [];
+let rooms = S.get('rooms') || [
+  {id:1, name:'Biology Group', type:'public', users:['Alex','Priya','Sam'], topic:'Cell Biology'},
+  {id:2, name:'Math Warriors', type:'public', users:['Jordan','Chris'], topic:'Calculus'},
+  {id:3, name:'CS Coders', type:'public', users:['Dev','Mia','Leo','Zara'], topic:'Data Structures'},
+];
+let currentRoom = null;
+let myName = S.get('myname') || '';
+
+// Check daily streak
+(function(){
+  const today = new Date().toDateString();
+  const last = S.get('last_study_day');
+  if(last !== today){
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+    if(last === yesterday.toDateString()){
+      streak++;
+    } else if(last !== today) {
+      streak = 1;
+    }
+    totalTodayMs = 0;
+    S.set('streak', streak);
+    S.set('today_ms', 0);
+    S.set('last_study_day', today);
+  }
+})();
+
+// Apply premium class
+if(isPremium) document.body.classList.add('premium-hidden');
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links button,[class^=bn-]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const nb = document.getElementById('nav-'+name);
+  if(nb) nb.classList.add('active');
+  const bb = document.getElementById('bn-'+name);
+  if(bb) bb.classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='leaderboard') renderLeaderboard('streak');
+  if(name==='groups') renderRooms();
+  if(name==='home') updateHomeStats();
+  if(name==='flashcards') renderFlashcardStudy();
+}
+
+// ══════════════════════════════════════════════
+// STUDY TIMER (Pomodoro)
+// ══════════════════════════════════════════════
+let timerInterval = null;
+let timerRunning = false;
+let timerSeconds = 25*60;
+let pomodoroCount = S.get('pomo_count') || 0;
+let timerMode = 'focus'; // focus | short | long
+const MODES = { focus:25*60, short:5*60, long:15*60 };
+const MOTIVATIONS = [
+  "💪 You're doing amazing! Keep going!",
+  "🚀 Every minute counts. Stay locked in!",
+  "🔥 Consistency beats intensity. Keep it up!",
+  "🎯 Focus is your superpower. Use it!",
+  "📚 One session at a time. You've got this!",
+  "⚡ Champions are made in moments like this!",
+  "🌟 Your future self will thank you today.",
+  "🧠 Deep work = deep results. Stay focused!",
+  "🏆 You're building something great. Keep going!",
+];
+
+function toggleTimer(){
+  if(timerRunning){
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timerBtn').textContent = '▶ Resume';
+    saveStudyTime(0); // just save state
+  } else {
+    timerRunning = true;
+    document.getElementById('timerBtn').textContent = '⏸ Pause';
+    setMotivation();
+    timerInterval = setInterval(timerTick, 1000);
+    markStudyDay();
+  }
+}
+
+let timerSessionMs = 0;
+let timerSessionStart = null;
+
+function timerTick(){
+  timerSeconds--;
+  timerSessionMs += 1000;
+  if(timerSeconds <= 0){
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerSessionComplete();
+    return;
+  }
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay(){
+  const m = Math.floor(timerSeconds/60);
+  const s = timerSeconds%60;
+  document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const total = MODES[timerMode];
+  const pct = (total - timerSeconds)/total;
+  const circ = 672;
+  document.getElementById('timerArc').style.strokeDashoffset = circ*(1-pct);
+}
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerMode = 'focus';
+  timerSeconds = MODES.focus;
+  document.getElementById('timerBtn').textContent = '▶ Start';
+  document.getElementById('timerMode').textContent = 'FOCUS';
+  document.getElementById('timerArc').style.strokeDashoffset = 0;
+  updateTimerDisplay();
+  saveStudyTime(timerSessionMs);
+  timerSessionMs = 0;
+}
+
+function skipTimer(){
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSessionComplete();
+}
+
+function timerSessionComplete(){
+  saveStudyTime(timerSessionMs);
+  timerSessionMs = 0;
+  if(timerMode === 'focus'){
+    pomodoroCount++;
+    S.set('pomo_count', pomodoroCount);
+    document.getElementById('pomodoroCount').textContent = pomodoroCount;
+    timerMode = pomodoroCount%4===0 ? 'long' : 'short';
+    showToast(`🍅 Pomodoro ${pomodoroCount} complete! Take a ${timerMode==='long'?'long':'short'} break.`);
+  } else {
+    timerMode = 'focus';
+    showToast('⏰ Break over! Time to focus again.');
+  }
+  timerSeconds = MODES[timerMode];
+  document.getElementById('timerMode').textContent = timerMode.toUpperCase();
+  document.getElementById('timerBtn').textContent = '▶ Start';
+  document.getElementById('timerArc').style.strokeDashoffset = 0;
+  updateTimerDisplay();
+  document.getElementById('motivationBox').textContent = timerMode==='focus'?'💪 New session! Stay focused.':'☕ Rest your eyes. You earned it!';
+}
+
+function setMotivation(){
+  document.getElementById('motivationBox').textContent = MOTIVATIONS[Math.floor(Math.random()*MOTIVATIONS.length)];
+}
+
+function saveStudyTime(ms){
+  totalTodayMs += ms;
+  S.set('today_ms', totalTodayMs);
+  updateAllStats();
+}
+
+function markStudyDay(){
+  const today = new Date().toDateString();
+  S.set('last_study_day', today);
+}
+
+function updateAllStats(){
+  const mins = Math.floor(totalTodayMs/60000);
+  const hrs = Math.floor(mins/60);
+  const rem = mins%60;
+  const timeStr = hrs>0 ? `${hrs}h ${rem}m` : `${mins}m`;
+  document.getElementById('timerTodayTime').textContent = timeStr;
+  document.getElementById('swTodayTime').textContent = timeStr;
+  document.getElementById('timerStreak').textContent = streak;
+  document.getElementById('streakBadge').textContent = `🔥 ${streak}`;
+  document.getElementById('pomodoroCount').textContent = pomodoroCount;
+  updateHomeStats();
+}
+
+function updateHomeStats(){
+  const mins = Math.floor(totalTodayMs/60000);
+  const hrs = Math.floor(mins/60);
+  const rem = mins%60;
+  document.getElementById('todayTime').textContent = hrs>0?`${hrs}h ${rem}m`:`${mins}m`;
+  document.getElementById('homeStreak').textContent = `${streak} day${streak!==1?'s':''}`;
+  document.getElementById('totalQuizzes').textContent = totalQuizzes;
+  renderHomeLB();
+}
+
+// ══════════════════════════════════════════════
+// STOPWATCH
+// ══════════════════════════════════════════════
+let swRunning=false, swInterval=null, swMs=0, swLapCount=0;
+
+function toggleSW(){
+  if(swRunning){
+    clearInterval(swInterval);
+    swRunning=false;
+    document.getElementById('swBtn').textContent='▶ Start';
+    saveStudyTime(swMs);
+    swMs=0;
+  } else {
+    swRunning=true;
+    document.getElementById('swBtn').textContent='⏸ Pause';
+    markStudyDay();
+    const start=Date.now()-swMs;
+    swInterval=setInterval(()=>{swMs=Date.now()-start;updateSW();},10);
+  }
+}
+
+function updateSW(){
+  const t=swMs;
+  const h=Math.floor(t/3600000);
+  const m=Math.floor(t/60000)%60;
+  const s=Math.floor(t/1000)%60;
+  document.getElementById('swDisplay').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function resetSW(){
+  clearInterval(swInterval);
+  swRunning=false;
+  swMs=0;
+  swLapCount=0;
+  document.getElementById('swBtn').textContent='▶ Start';
+  document.getElementById('swDisplay').textContent='00:00:00';
+  document.getElementById('swLaps').textContent='0';
+  document.getElementById('lapList').innerHTML='';
+}
+
+function lapSW(){
+  if(!swRunning) return;
+  swLapCount++;
+  document.getElementById('swLaps').textContent=swLapCount;
+  const h=Math.floor(swMs/3600000), m=Math.floor(swMs/60000)%60, s=Math.floor(swMs/1000)%60;
+  const time=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const div=document.createElement('div');
+  div.className='info-chip';
+  div.style.textAlign='left';
+  div.innerHTML=`<strong>Lap ${swLapCount}</strong> <span style="color:var(--muted)">${time}</span>`;
+  document.getElementById('lapList').prepend(div);
+}
+
+// ══════════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════════
+let questions=[], currentQ=0, score=0, answered=false, quizQCount=0;
+
+const SAMPLE_NOTES = `The mitochondria is the powerhouse of the cell. It produces ATP through cellular respiration.
+Photosynthesis is the process by which plants use sunlight, water, and carbon dioxide to produce glucose and oxygen.
+DNA stands for deoxyribonucleic acid. It carries genetic information and is found in the nucleus.
+The cell membrane controls what enters and exits the cell. It is made of a phospholipid bilayer.
+Proteins are made of amino acids. They are synthesized by ribosomes through translation.
+The human body has 206 bones. The largest bone is the femur.
+Newton's first law states that an object at rest stays at rest unless acted upon by a force.
+Water has a boiling point of 100°C and a freezing point of 0°C at sea level.`;
+
+function loadSampleNotes(){
+  document.getElementById('quizNotes').value = SAMPLE_NOTES;
+  showToast('📝 Sample notes loaded!');
+}
+
+function generateQuiz(){
+  const notes = document.getElementById('quizNotes').value.trim();
+  if(!notes || notes.length < 30){
+    showToast('⚠️ Please paste more notes first!');
+    return;
+  }
+  // Generate quiz from notes algorithmically
+  questions = parseNotesToQuestions(notes);
+  if(questions.length === 0){
+    showToast('⚠️ Could not generate questions. Try more detailed notes.');
+    return;
+  }
+  currentQ = 0; score = 0; quizQCount=0;
+  document.getElementById('quizSetup').style.display='none';
+  document.getElementById('quizScore').style.display='none';
+  document.getElementById('quizActive').style.display='block';
+  totalQuizzes++;
+  S.set('total_quizzes', totalQuizzes);
+  renderQuestion();
+}
+
+function parseNotesToQuestions(notes){
+  const sentences = notes.split(/[.!?]\s+/).filter(s=>s.trim().length>20);
+  const qs = [];
+  sentences.slice(0,8).forEach(s=>{
+    s = s.trim().replace(/^\n+/,'');
+    if(!s) return;
+    // Find key term pattern: "X is Y" or "X are Y"
+    const isMatch = s.match(/^(.+?)\s+(?:is|are|was|were)\s+(.+)$/i);
+    if(isMatch){
+      const subject = isMatch[1].trim();
+      const predicate = isMatch[2].trim();
+      const wrongAnswers = generateWrongAnswers(predicate, sentences);
+      const opts = shuffle([predicate, ...wrongAnswers.slice(0,3)]);
+      qs.push({
+        q: `What ${subject.toLowerCase().includes('he ')||subject.toLowerCase().includes('she ')?'is':'is'} ${subject}?`,
+        options: opts,
+        answer: predicate,
+        explanation: s
+      });
+    }
+    // "X stands for Y"
+    const sfMatch = s.match(/(\w+)\s+stands for\s+(.+)/i);
+    if(sfMatch){
+      const abbr = sfMatch[1], full = sfMatch[2].trim();
+      const opts = shuffle([full, ...generateWrongAnswers(full, sentences).slice(0,3)]);
+      qs.push({ q:`What does ${abbr} stand for?`, options:opts, answer:full, explanation:s });
+    }
+  });
+  return qs.slice(0,6);
+}
+
+function generateWrongAnswers(correct, sentences){
+  const wrongs = [];
+  sentences.forEach(s=>{
+    const m = s.match(/(?:is|are|was|were)\s+(.+)$/i);
+    if(m){
+      const ans = m[1].trim().replace(/\.$/, '');
+      if(ans.toLowerCase() !== correct.toLowerCase() && ans.length>3 && ans.length<80){
+        wrongs.push(ans);
+      }
+    }
+  });
+  // Pad with generic wrong answers if needed
+  const generics = ['None of the above','A chemical compound','A biological process','A mathematical concept','A physical property','An energy source'];
+  while(wrongs.length < 3) wrongs.push(generics[wrongs.length]);
+  return shuffle(wrongs);
+}
+
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-.5); }
+
+function renderQuestion(){
+  if(currentQ >= questions.length){ showScore(); return; }
+  answered = false;
+  const q = questions[currentQ];
+  document.getElementById('qCounter').textContent = `Question ${currentQ+1} / ${questions.length}`;
+  document.getElementById('qScore').textContent = `Score: ${score}`;
+  document.getElementById('questionText').textContent = q.q;
+  // Progress dots
+  const prog = document.getElementById('qProgress');
+  prog.innerHTML = questions.map((_,i)=>
+    `<div class="q-dot${i<currentQ?' done':i===currentQ?' current':''}"></div>`
+  ).join('');
+  // Options
+  const og = document.getElementById('optionsGrid');
+  og.innerHTML = q.options.map((opt,i)=>
+    `<button class="option-btn" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${opt}</button>`
+  ).join('');
+  document.getElementById('feedbackMsg').style.display='none';
+  document.getElementById('nextQBtn').style.display='none';
+  // Ad every 2 questions
+  const midAd = document.getElementById('quizMidAd');
+  midAd.style.display = (!isPremium && currentQ>0 && currentQ%2===0)?'block':'none';
+}
+
+function answer(idx){
+  if(answered) return;
+  answered = true;
+  const q = questions[currentQ];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+  const selected = q.options[idx];
+  const isCorrect = selected === q.answer;
+  if(isCorrect){
+    score++;
+    btns[idx].classList.add('correct');
+    showFeedback(true, '✅ Correct! '+q.explanation);
+  } else {
+    btns[idx].classList.add('wrong');
+    const correctIdx = q.options.indexOf(q.answer);
+    if(correctIdx>=0) btns[correctIdx].classList.add('correct');
+    showFeedback(false, `❌ Incorrect. The correct answer was: "${q.answer}"`);
+  }
+  document.getElementById('nextQBtn').style.display='inline-flex';
+}
+
+function showFeedback(correct, msg){
+  const fb = document.getElementById('feedbackMsg');
+  fb.textContent = msg;
+  fb.className = 'feedback-msg '+(correct?'correct':'wrong');
+  fb.style.display='block';
+}
+
+function nextQuestion(){
+  currentQ++;
+  quizQCount++;
+  if(currentQ < questions.length){
+    // Reward delay every 3 questions
+    if(quizQCount%3===0){
+      showRewardCountdown(()=>renderQuestion());
+    } else {
+      renderQuestion();
+    }
+  } else {
+    showScore();
+  }
+}
+
+function showRewardCountdown(cb){
+  const overlay = document.getElementById('rewardOverlay');
+  const numEl = document.getElementById('rewardNum');
+  overlay.classList.add('show');
+  let c=3;
+  numEl.textContent=c;
+  document.getElementById('rewardText').textContent='Keep going! Next question loading...';
+  const t=setInterval(()=>{
+    c--;
+    if(c<=0){ clearInterval(t); overlay.classList.remove('show'); cb(); }
+    else numEl.textContent=c;
+  },1000);
+}
+
+function showScore(){
+  document.getElementById('quizActive').style.display='none';
+  document.getElementById('quizScore').style.display='block';
+  const pct = Math.round((score/questions.length)*100);
+  document.getElementById('scoreBig').textContent = pct+'%';
+  document.getElementById('scoreDetail').textContent = `You got ${score} out of ${questions.length} questions correct`;
+  document.getElementById('scoreBar').style.width = pct+'%';
+  showToast(`🏆 Quiz done! Score: ${pct}%`);
+}
+
+function retakeQuiz(){
+  currentQ=0; score=0; quizQCount=0;
+  questions = shuffle(questions);
+  document.getElementById('quizScore').style.display='none';
+  document.getElementById('quizActive').style.display='block';
+  renderQuestion();
+}
+
+function newQuiz(){
+  document.getElementById('quizScore').style.display='none';
+  document.getElementById('quizSetup').style.display='block';
+  document.getElementById('quizNotes').value='';
+}
+
+// ══════════════════════════════════════════════
+// FLASHCARDS
+// ══════════════════════════════════════════════
+let fcIndex=0, fcFlipped=false;
+
+function fcTab(tab){
+  ['study','create','generate'].forEach(t=>{
+    document.getElementById('fcTab-'+t).classList.toggle('active',t===tab);
+    document.getElementById(t==='study'?'fcStudy':t==='create'?'fcCreate':'fcGenerate').style.display=t===tab?'block':'none';
+  });
+  if(tab==='study') renderFlashcardStudy();
+  if(tab==='create') renderFCList();
+}
+
+function renderFlashcardStudy(){
+  if(flashcards.length===0){
+    document.getElementById('noCards').style.display='block';
+    document.getElementById('cardViewer').style.display='none';
+  } else {
+    document.getElementById('noCards').style.display='none';
+    document.getElementById('cardViewer').style.display='block';
+    showCard(fcIndex);
+  }
+}
+
+function showCard(idx){
+  fcIndex = Math.max(0,Math.min(flashcards.length-1,idx));
+  fcFlipped=false;
+  document.getElementById('mainFlashcard').classList.remove('flipped');
+  document.getElementById('fcFront').textContent = flashcards[fcIndex].q;
+  document.getElementById('fcBack').textContent = flashcards[fcIndex].a;
+  document.getElementById('fcCounter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+}
+
+function flipCard(){ fcFlipped=!fcFlipped; document.getElementById('mainFlashcard').classList.toggle('flipped',fcFlipped); }
+function nextCard(){ showCard(fcIndex+1); }
+function prevCard(){ showCard(fcIndex-1); }
+function shuffleCards(){ flashcards=shuffle(flashcards); S.set('flashcards',flashcards); showCard(0); showToast('🔀 Shuffled!'); }
+function deleteCard(){
+  if(!flashcards.length) return;
+  flashcards.splice(fcIndex,1);
+  S.set('flashcards',flashcards);
+  showCard(Math.max(0,fcIndex-1));
+  renderFlashcardStudy();
+  showToast('🗑 Card deleted');
+}
+
+function addCard(){
+  const q=document.getElementById('fcQ').value.trim();
+  const a=document.getElementById('fcA').value.trim();
+  if(!q||!a){ showToast('⚠️ Fill in both fields!'); return; }
+  flashcards.push({q,a});
+  S.set('flashcards',flashcards);
+  document.getElementById('fcQ').value='';
+  document.getElementById('fcA').value='';
+  renderFCList();
+  showToast('✅ Flashcard added!');
+}
+
+function renderFCList(){
+  const list=document.getElementById('fcList');
+  list.innerHTML=flashcards.map((fc,i)=>
+    `<div class="fc-list-item">
+      <div class="fc-q">${fc.q}</div>
+      <div class="fc-a">${fc.a}</div>
+      <button onclick="editCard(${i})" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:14px">✏️</button>
+    </div>`
+  ).join('') || '<div class="empty-state"><p>No cards yet</p></div>';
+}
+
+function editCard(i){
+  const fc=flashcards[i];
+  document.getElementById('fcQ').value=fc.q;
+  document.getElementById('fcA').value=fc.a;
+  flashcards.splice(i,1);
+  S.set('flashcards',flashcards);
+  renderFCList();
+  showToast('✏️ Edit the card and click Add');
+}
+
+function generateFlashcards(){
+  const notes=document.getElementById('fcNotes').value.trim();
+  if(!notes||notes.length<30){ showToast('⚠️ Paste more notes first!'); return; }
+  const sentences=notes.split(/[.!?]\s+/).filter(s=>s.trim().length>20);
+  const newCards=[];
+  sentences.slice(0,10).forEach(s=>{
+    const m=s.match(/^(.+?)\s+(?:is|are|was|were|stands for)\s+(.+)$/i);
+    if(m) newCards.push({q:`What is ${m[1].trim()}?`, a:m[2].trim()});
+  });
+  if(newCards.length===0){ showToast('⚠️ Could not extract flashcards. Try clearer notes.'); return; }
+  flashcards=[...flashcards,...newCards];
+  S.set('flashcards',flashcards);
+  showToast(`✅ Generated ${newCards.length} flashcards!`);
+  document.getElementById('fcNotes').value='';
+  fcTab('study');
+}
+
+// ══════════════════════════════════════════════
+// STUDY GROUPS
+// ══════════════════════════════════════════════
+const mockUsers=[
+  {name:'Alex', status:'🍅 Pomodoro 3/4', time:'1h 20m'},
+  {name:'Priya', status:'⏱ Stopwatch running', time:'45m'},
+  {name:'Sam', status:'🧠 Taking Quiz', time:'30m'},
+  {name:'Jordan', status:'🃏 Reviewing Flashcards', time:'2h 5m'},
+  {name:'Chris', status:'🍅 Pomodoro 1/4', time:'15m'},
+  {name:'Mia', status:'📖 Reading notes', time:'55m'},
+];
+
+function renderRooms(){
+  const grid=document.getElementById('roomGrid');
+  grid.innerHTML=rooms.map(r=>`
+    <div class="room-card" onclick="joinRoomDirect(${r.id})">
+      <div class="room-icon">📚</div>
+      <div class="room-info">
+        <div class="room-name">${r.name}</div>
+        <div class="room-meta">📖 ${r.topic}</div>
+        <div class="room-users"><span class="active-dot"></span>${r.users.length} studying now</div>
+      </div>
+      <span class="room-badge badge-${r.type}">${r.type==='public'?'🌐 Public':'🔒 Private'}</span>
+    </div>`).join('');
+
+  const ul=document.getElementById('activeUsers');
+  ul.innerHTML=mockUsers.map(u=>`
+    <div class="user-chip">
+      <span class="active-dot"></span>
+      <span><strong>${u.name}</strong> · ${u.status} · ${u.time}</span>
+    </div>`).join('');
+}
+
+function openCreateRoom(){ document.getElementById('createRoomModal').classList.add('open'); }
+function openJoinRoom(){ document.getElementById('joinRoomModal').classList.add('open'); }
+
+function createRoom(){
+  const name=document.getElementById('roomName').value.trim();
+  const user=document.getElementById('roomUser').value.trim();
+  const type=document.querySelector('input[name=rtype]:checked').value;
+  if(!name||!user){ showToast('⚠️ Fill in all fields'); return; }
+  if(type==='private'&&!isPremium){ showToast('🔒 Private rooms require Premium!'); openPremiumModal(); return; }
+  myName=user; S.set('myname',user);
+  rooms.push({id:Date.now(), name, type, users:[user], topic:'General Study'});
+  S.set('rooms', rooms);
+  document.getElementById('createRoomModal').classList.remove('open');
+  document.getElementById('roomName').value='';
+  document.getElementById('roomUser').value='';
+  renderRooms();
+  showToast('✅ Room created!');
+}
+
+function joinRoom(){
+  const user=document.getElementById('joinUser').value.trim();
+  if(!user){ showToast('⚠️ Enter your name'); return; }
+  myName=user; S.set('myname',user);
+  document.getElementById('joinRoomModal').classList.remove('open');
+  showToast(`👋 Welcome, ${user}! You joined the room.`);
+  renderRooms();
+}
+
+function joinRoomDirect(id){
+  const room=rooms.find(r=>r.id===id);
+  if(!room) return;
+  if(!myName){ openJoinRoom(); return; }
+  if(!room.users.includes(myName)) room.users.push(myName);
+  S.set('rooms',rooms);
+  showToast(`✅ Joined "${room.name}"!`);
+  renderRooms();
+}
+
+// ══════════════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════════════
+const lbData = [
+  {name:'Jordan', streak:14, time:'12h 30m', score:95, active:true},
+  {name:'Alex', streak:10, time:'8h 45m', score:88, active:true},
+  {name:'Priya', streak:8, time:'7h 20m', score:82, active:false},
+  {name:'Sam', streak:6, time:'5h 10m', score:76, active:true},
+  {name:'Mia', streak:5, time:'4h 55m', score:70, active:false},
+  {name:'Chris', streak:3, time:'3h 30m', score:65, active:true},
+  {name:'Dev', streak:2, time:'2h 15m', score:58, active:false},
+];
+
+function lbTab(tab){
+  ['streak','time','live'].forEach(t=>{
+    document.getElementById('lbTab-'+t).classList.toggle('active',t===tab);
+  });
+  renderLeaderboard(tab);
+}
+
+function renderLeaderboard(tab){
+  const medals=['🥇','🥈','🥉'];
+  let sorted;
+  if(tab==='live') sorted=lbData.filter(u=>u.active);
+  else if(tab==='time') sorted=[...lbData].sort((a,b)=>b.time.localeCompare(a.time));
+  else sorted=[...lbData].sort((a,b)=>b.streak-a.streak);
+
+  document.getElementById('lbContent').innerHTML=sorted.map((u,i)=>`
+    <div class="lb-item">
+      <div class="lb-rank">${medals[i]||'#'+(i+1)}</div>
+      <div class="lb-info">
+        <div class="lb-name">${u.active?'<span class="active-dot"></span>':''}${u.name}</div>
+        <div class="lb-detail">${tab==='time'?u.time:tab==='live'?'Studying now':u.streak+' day streak'}</div>
+      </div>
+      <div class="lb-score">${tab==='streak'?'🔥'+u.streak:tab==='time'?u.time:'🟢 Live'}</div>
+    </div>`).join('');
+}
+
+function renderHomeLB(){
+  document.getElementById('homeLB').innerHTML=[...lbData].sort((a,b)=>b.streak-a.streak).slice(0,4).map((u,i)=>`
+    <div class="lb-item">
+      <div class="lb-rank">${['🥇','🥈','🥉','4️⃣'][i]}</div>
+      <div class="lb-info">
+        <div class="lb-name">${u.active?'<span class="active-dot"></span>':''}${u.name}</div>
+        <div class="lb-detail">${u.active?'Studying now':'Last seen today'}</div>
+      </div>
+      <div class="lb-score">🔥 ${u.streak}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// PREMIUM
+// ══════════════════════════════════════════════
+const VALID_CODES = ['FOCUS-2024-PRO','FOCUS-PREM-99','FOCUSHUB-VIP'];
+
+function openPremiumModal(){ document.getElementById('premiumModal').classList.add('open'); }
+function closePremiumModal(){ document.getElementById('premiumModal').classList.remove('open'); }
+
+function activatePremium(){
+  const code = document.getElementById('premiumCode').value.trim().toUpperCase();
+  if(VALID_CODES.includes(code)){
+    isPremium=true;
+    S.set('premium',true);
+    document.body.classList.add('premium-hidden');
+    closePremiumModal();
+    showToast('⭐ Premium activated! Enjoy all features!');
+  } else {
+    showToast('❌ Invalid code. Please check and try again.');
+  }
+}
+
+// ══════════════════════════════════════════════
+// CONTACT
+// ══════════════════════════════════════════════
+function submitContact(){
+  const n=document.getElementById('contactName').value.trim();
+  const e=document.getElementById('contactEmail').value.trim();
+  const s=document.getElementById('contactSubject').value.trim();
+  const m=document.getElementById('contactMsg').value.trim();
+  if(!n||!e||!s||!m){ showToast('⚠️ Please fill all fields'); return; }
+  document.getElementById('contactName').value='';
+  document.getElementById('contactEmail').value='';
+  document.getElementById('contactSubject').value='';
+  document.getElementById('contactMsg').value='';
+  showToast('📤 Message sent! We\'ll reply within 24h.');
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+let toastT=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+updateAllStats();
+renderHomeLB();
+renderRooms();
+renderFlashcardStudy();
+updateTimerDisplay();
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+
+// Persist today time every 30 seconds
+setInterval(()=>S.set('today_ms',totalTodayMs),30000);
+</script>
+</body>
+</html>
